@@ -53,7 +53,7 @@
 <script src="main.b1d44.js" charset="utf-8"></script>
 
 <script type="text/javascript">
-(function () {
+(async function () {
     // open web debugger console
     if (typeof VConsole !== 'undefined') {
         window.vConsole = new VConsole();
@@ -76,6 +76,15 @@
       document.body.appendChild(domScript);
     }
 
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.register('./court-worker.js');
+        await Promise.race([new Promise(resolve => {
+          if (navigator.serviceWorker.controller) resolve();
+          else navigator.serviceWorker.addEventListener('controllerchange', resolve, {once:true});
+        }), new Promise(resolve => setTimeout(resolve, 5000))]);
+      } catch (_) {}
+    }
     loadScript(debug ? 'cocos2d-js.js' : 'cocos2d-js-min.a65fd.js', function () {
       if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON) {
         loadScript(debug ? 'physics.js' : 'physics-min.js', window.boot);
